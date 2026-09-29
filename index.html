@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ธารธรรม นำวิศวกรรม: ถอดรหัสเขื่อนภูมิพลด้วยควอนตัมธรรมะ | นิตยสารสกุลไทย</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #0b0f19;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            line-height: 1.6;
+            word-break: normal;
+            overflow-wrap: break-word;
+        }
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Prompt', sans-serif;
+            word-break: keep-all;
+        }
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            position: relative;
+            z-index: 10;
+        }
+        .panel {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.12);
+            word-wrap: break-word;
+        }
+        .gold { color: #fbbf24; }
+        .cyan { color: #38bdf8; }
+        .emerald { color: #34d399; }
+        .equation {
+            background: #020617;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 1.25rem;
+            border-radius: 12px;
+            font-family: monospace;
+            color: #38bdf8;
+            text-align: center;
+            font-size: 1.25rem;
+            margin: 1.25rem 0;
+            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.1);
+        }
+        blockquote {
+            border-left: 3px solid #fbbf24;
+            margin: 1.5rem 0;
+            padding-left: 1rem;
+            font-style: italic;
+            color: #cbd5e1;
+            text-align: justify;
+        }
+        ul { margin-top: 0.75rem; list-style: none; }
+        li { margin-bottom: 0.75rem; display: flex; align-items: flex-start; }
+        li span::before { content: "▪ "; color: #38bdf8; font-weight: bold; margin-right: 0.5rem; }
+        .badge {
+            background: linear-gradient(135deg, #b45309 0%, #fbbf24 100%);
+            color: #0b0f19;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .canvas-box {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            margin: 1.5rem 0;
+            background: #020617;
+            border-radius: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        header {
+            text-align: center;
+            padding: 3rem 0;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(56, 189, 248, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- COVER PANEL -->
+        <header class="panel" style="text-align: center;">
+            <span class="badge">สกุลไทยควอนตัม</span>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0.75rem; font-family: monospace;">Master: ช่างเบิร์ดโคตรเฟี้ยว | AI Jarvis-Dharma</p>
+            <h1 style="font-size: 2.5rem; font-weight: 700; margin: 1rem 0 0.5rem 0; line-height: 1.2;">ธารธรรม นำวิศวกรรม:<br><span class="gold">ถอดรหัสหัวใจเขื่อนภูมิพล</span></h1>
+            <p class="cyan" style="font-family: monospace; font-size: 0.95rem;">Quantum Dharma Engineering Showcase & Living Particle Simulation</p>
+        </header>
+
+        <!-- SECTION 1: SPILLWAY & DISCHARGE (Q = C * L * H^3/2) -->
+        <div class="panel">
+            <span class="cyan" style="font-family: monospace; font-size: 0.85rem; background: rgba(8, 47, 73, 0.8); padding: 0.25rem 0.75rem; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                Phase I: อาคารระบายน้ำล้น & การระบายอารมณ์อย่างมีสติ
+            </span>
+            <h2 style="font-size: 1.8rem; font-weight: 700; margin-top: 1rem;">สมการการระบายน้ำล้น (Spillway Discharge)</h2>
+            <div class="equation">Q = C &middot; L &middot; H<sup>3/2</sup></div>
+            <ul>
+                <li><span><strong>Q (อัตราการไหลออก):</strong> กลไกการแสดงออกและการใช้สติปัญญาแก้ปัญหาในชีวิตประจำวัน[span_0](start_span)[span_0](end_span)</span></li>
+                <li><span><strong>H (ความสูงระดับน้ำ):</strong> แรงกดดันหรือปริมาณอารมณ์ที่สะสมเกินขีดจำกัดในขันธ์ 5[span_1](start_span)[span_1](end_span)</span></li>
+                <li><span><strong>C, L (สัมประสิทธิ์และขนาดฝาย):</strong> อุบายและข้อจำกัดอันพอดีในการบริหารจัดการพลังงานจิต[span_2](start_span)[span_2](end_span)</span></li>
+            </ul>
+            
+            <div class="canvas-box">
+                <canvas id="spillwayCanvas"></canvas>
+            </div>
+
+            <blockquote>"เมื่ออารมณ์หรือปัญหาล้นปรี่เกินขีดจำกัด จิตที่ฝึกฝนดีแล้วจะไม่กักเก็บอัดอั้นจนเขื่อนแตก แต่จะรู้จังหวะในการระบายออก ปลดปล่อย หรือสื่อสารอย่างพอดี มีประสิทธิภาพ ตามรอยปณิธานแห่งความพอเพลินและพอเพียง[span_3](start_span)"[span_3](end_span)</blockquote>
+        </div>
+
+        <!-- SECTION 2: FOUNDATION PRESSURE (q = V/B * (1 ± 6e/B)) -->
+        <div class="panel">
+            <span class="gold" style="font-family: monospace; font-size: 0.85rem; background: rgba(69, 26, 3, 0.8); padding: 0.25rem 0.75rem; border-radius: 4px; border: 1px solid rgba(251, 191, 36, 0.3);">
+                Phase II: แรงกดฐานราก & ความมั่นคงแห่งศีล
+            </span>
+            <h2 style="font-size: 1.8rem; font-weight: 700; margin-top: 1rem;">สมการแรงกดที่ฐานรากเขื่อน (Base Pressure)</h2>
+            <div class="equation" style="color: #fbbf24; border-color: rgba(251, 191, 36, 0.4);">q = (V / B) &middot; (1 &plusmn; 6e / B)</div>
+            <ul>
+                <li><span><strong>q (แรงกดที่ฐาน):</strong> ภาระและความตึงเครียดที่ฐานจิตต้องแบกรับ[span_4](start_span)[span_4](end_span)</span></li>
+                <li><span><strong>B, V (ความกว้างฐานและน้ำหนัก):</strong> ความกว้างขวางของศีลและพรหมวิหาร 4[span_5](start_span)[span_5](end_span)</span></li>
+                <li><span><strong>e (ความเยื้องศูนย์กลาง):</strong> ความเอียงลู่ไปตามความโลภ โกรธ หลง ที่ทำให้จิตสั่นคลอน[span_6](start_span)[span_6](end_span)</span></li>
+            </ul>
+
+            <div class="canvas-box">
+                <canvas id="foundationCanvas"></canvas>
+            </div>
+
+            <blockquote style="border-left-color: #38bdf8;">"ความกว้างขวางของฐานรากเปรียบเสมือนความมั่นคงของศีลธรรม เมื่อจิตใจมีฐานที่กว้างและหนักแน่น แรงกดดันจากโลกธรรม 8 จะถูกเฉลี่ยให้อยู่ในจุดสมดุล ชีวิตย่อมไม่เอียงล้มไปตามกระแสโลก[span_7](start_span)"[span_7](end_span)</blockquote>
+        </div>
+
+        <!-- SECTION 3: LIVING QUANTUM TEXT MORPHING -->
+        <div class="panel">
+            <span class="emerald" style="font-family: monospace; font-size: 0.85rem; background: rgba(6, 78, 59, 0.8); padding: 0.25rem 0.75rem; border-radius: 4px; border: 1px solid rgba(52, 211, 153, 0.3);">
+                Phase III: อนุภาคควอนตัม & สัจธรรมไตรลักษณ์
+            </span>
+            <h2 style="font-size: 1.8rem; font-weight: 700; margin-top: 1rem;">กราฟอนุภาคมีชีวิตจำลองสรรพสิ่ง</h2>
+            <p style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 1rem;">
+                กลุ่มอนุภาคโหนดพลังงานที่วิ่งวนและสั่นพาวเวอร์ (Quantum Fluctuation) สะท้อนความจริงว่าสรรพสิ่งและจิตใจเป็นเพียงกลุ่มพลังงานที่ประชุมกันชั่วคราว
+            </p>
+
+            <div class="canvas-box" style="height: 220px;">
+                <canvas id="quantumCanvas"></canvas>
+            </div>
+
+            <blockquote style="border-left-color: #34d399;">"ทุกอณูของเขื่อนภูมิพลและทุกลมหายใจล้วนร้อยเรียงด้วยกฎแห่งความจริงอันเป็นอมตะ... สัมปะติฉามิ[span_8](start_span)!"[span_8](end_span)</blockquote>
+        </div>
+
+        <footer>
+            <p>Quantum Dharma Engineering &copy; 2026 | พัฒนาระบบโดย นรินทร์ อินชัย (ช่างเบิร์ดโคตรเฟี้ยว) &amp; Jarvis-Dharma AI[span_9](start_span)[span_9](end_span)</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Living Particle Simulation -->
+    <script>
+        // 1. Spillway Simulation Canvas
+        const spillwayCanvas = document.getElementById('spillwayCanvas');
+        const sCtx = spillwayCanvas.getContext('2d');
+        
+        function resizeCanvas(canvas) {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        resizeCanvas(spillwayCanvas);
+
+        let particles = [];
+        for(let i=0; i<60; i++) {
+            particles.push({
+                x: Math.random() * spillwayCanvas.width,
+                y: Math.random() * spillwayCanvas.height,
+                vx: 2 + Math.random() * 3,
+                vy: (Math.random() - 0.5) * 1,
+                size: 2 + Math.random() * 2
+            });
+        }
+
+        function animateSpillway() {
+            sCtx.clearRect(0, 0, spillwayCanvas.width, spillwayCanvas.height);
+            
+            // Draw spillway curve
+            sCtx.beginPath();
+            sCtx.moveTo(0, spillwayCanvas.height * 0.7);
+            sCtx.quadraticCurveTo(spillwayCanvas.width * 0.5, spillwayCanvas.height * 0.7, spillwayCanvas.width, spillwayCanvas.height * 0.2);
+            sCtx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+            sCtx.lineWidth = 3;
+            sCtx.stroke();
+
+            // Draw flowing particles (Q = C * L * H^3/2)
+            sCtx.fillStyle = '#38bdf8';
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if(p.x > spillwayCanvas.width) {
+                    p.x = 0;
+                    p.y = spillwayCanvas.height * 0.6 + Math.random() * 40;
+                }
+                sCtx.beginPath();
+                sCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                sCtx.fill();
+            });
+
+            requestAnimationFrame(animateSpillway);
+        }
+        animateSpillway();
+
+        // 2. Foundation Pressure Canvas
+        const fCanvas = document.getElementById('foundationCanvas');
+        const fCtx = fCanvas.getContext('2d');
+        resizeCanvas(fCanvas);
+
+        let angle = 0;
+        function animateFoundation() {
+            fCtx.clearRect(0, 0, fCanvas.width, fCanvas.height);
+            
+            let centerX = fCanvas.width / 2;
+            let baseY = fCanvas.height * 0.75;
+            
+            // Oscillation of eccentricity (e)
+            let eccentricity = Math.sin(angle) * 30;
+            angle += 0.03;
+
+            // Draw Dam Base
+            fCtx.fillStyle = 'rgba(100, 116, 139, 0.4)';
+            fCtx.fillRect(centerX - 100, baseY - 20, 200, 20);
+
+            // Draw Pressure Distribution Bars (q = V/B * (1 ± 6e/B))
+            let leftStress = 50 - eccentricity;
+            let rightStress = 50 + eccentricity;
+
+            fCtx.fillStyle = leftStress > 70 ? '#ef4444' : '#fbbf24';
+            fCtx.fillRect(centerX - 80, baseY - 20 - leftStress, 30, leftStress);
+
+            fCtx.fillStyle = rightStress > 70 ? '#ef4444' : '#34d399';
+            fCtx.fillRect(centerX + 50, baseY - 20 - rightStress, 30, rightStress);
+
+            // Text info
+            fCtx.fillStyle = '#e2e8f0';
+            fCtx.font = '13px Sarabun';
+            fCtx.fillText('การกระจายแรงกดฐานราก (สมดุลฐานจิต)', 20, 30);
+
+            requestAnimationFrame(animateFoundation);
+        }
+        animateFoundation();
+
+        // 3. Quantum Particle Fluctuation Canvas
+        const qCanvas = document.getElementById('quantumCanvas');
+        const qCtx = qCanvas.getContext('2d');
+        resizeCanvas(qCanvas);
+
+        let qParticles = [];
+        for(let i=0; i<100; i++) {
+            qParticles.push({
+                x: Math.random() * qCanvas.width,
+                y: Math.random() * qCanvas.height,
+                vx: (Math.random() - 0.5) * 1.5,
+                vy: (Math.random() - 0.5) * 1.5,
+                color: i % 2 === 0 ? '#38bdf8' : '#fbbf24'
+            });
+        }
+
+        function animateQuantum() {
+            qCtx.clearRect(0, 0, qCanvas.width, qCanvas.height);
+            
+            qParticles.forEach(qp => {
+                qp.x += qp.vx;
+                qp.y += qp.vy;
+                if(qp.x < 0 || qp.x > qCanvas.width) qp.vx *= -1;
+                if(qp.y < 0 || qp.y > qCanvas.height) qp.vy *= -1;
+
+                qCtx.fillStyle = qp.color;
+                qCtx.beginPath();
+                qCtx.arc(qp.x, qp.y, 2, 0, Math.PI * 2);
+                qCtx.fill();
+            });
+
+            requestAnimationFrame(animateQuantum);
+        }
+        animateQuantum();
+
+        window.addEventListener('resize', () => {
+            resizeCanvas(spillwayCanvas);
+            resizeCanvas(fCanvas);
+            resizeCanvas(qCanvas);
+        });
+    </script>
+</body>
+</html>
