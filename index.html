@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Digital Mantra Laboratory | 3D-Native Pure Voxel OS</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body {
+            background-color: #020617; color: #f8fafc; font-family: 'Sarabun', sans-serif;
+            overflow: hidden; width: 100vw; height: 100vh; touch-action: none;
+        }
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        
+        /* คำแนะนำสถานะแบบลอยตัว 3D Minimalist ในมิติ Canvas */
+        .hud-overlay {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 10; pointer-events: none; text-align: center;
+            font-family: 'Prompt', sans-serif; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+        .hud-title { color: #fbbf24; font-size: 1rem; font-weight: 600; letter-spacing: 1px; }
+        .hud-sub { color: #38bdf8; font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="hud-overlay">
+        <div class="hud-title" id="hud-title">Digital Mantra Laboratory (สุญญตา 3D)</div>
+        <div class="hud-sub" id="hud-sub">คลิกที่ผลึกซ้ายล่างเพื่อร่ายคาถา หรือคลิกที่ฉากเพื่อสั่ง Morphing</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const P = { void: 0x020617, idle: 0x475569, dharma: 0xfbbf24, sufficiency: 0x10b981, pointer: 0x38bdf8, wisdom: 0xa855f7 };
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(P.void);
+        scene.fog = new THREE.FogExp2(P.void, 0.012);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 8, 35);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const light = new THREE.PointLight(0xffffff, 2, 100);
+        light.position.set(0, 20, 15);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040, 2.5));
+
+        const cellCount = 3500; 
+        const voxelGeo = new THREE.BoxGeometry(0.45, 0.45, 0.45);
+        const voxelMat = new THREE.MeshPhysicalMaterial({ 
+            color: 0xffffff, metalness: 0.1, roughness: 0.2, transmission: 0.5, thickness: 0.5
+        });
+        
+        const instancedVoxels = new THREE.InstancedMesh(voxelGeo, voxelMat, cellCount);
+        scene.add(instancedVoxels);
+
+        const dummy = new THREE.Object3D();
+        const cellData = [];
+        let systemState = 0; // 0=Void/Idle, 1=Forming Mantra Text, 2=Morphing to Karma Shape
+        let currentKarma = 'dharma'; // dharma, sufficiency, wisdom
+
+        // สร้างจุดกำเนิดคาถา 3D (Mantra Origin Crystal Node ที่มุมซ้ายล่างของฉาก)
+        const originGeo = new THREE.OctahedronGeometry(2, 0);
+        const originMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.6, wireframe: true });
+        const originCrystal = new THREE.Mesh(originGeo, originMat);
+        originCrystal.position.set(-18, -10, 0);
+        scene.add(originCrystal);
+
+        for (let i = 0; i < cellCount; i++) {
+            let theta = Math.random() * Math.PI * 2;
+            let phi = Math.acos((Math.random() * 2) - 1);
+            let r = 14 + Math.random() * 15;
+            let idlePos = new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
+            
+            cellData.push({ 
+                current: idlePos.clone(), 
+                idle: idlePos, 
+                target: new THREE.Vector3(), 
+                textPos: new THREE.Vector3(),
+                karmaPos: new THREE.Vector3(),
+                color: new THREE.Color(P.idle),
+                speed: 0.03 + Math.random() * 0.03,
+                index: i
+            });
+        }
+
+        // ฟังก์ชันคำนวณพิกัดจำลองรูปร่างตัวอักษรคาถา 3D (Mantra Text Shape)
+        function generateTextShape() {
+            for (let i = 0; i < cellCount; i++) {
+                let d = cellData[i];
+                // จัดเรียงเป็นโครงร่างแผงตัวอักษรภาษาบาลี/ไทยจำลองกลางจอ
+                let x = (Math.random() - 0.5) * 18;
+                let y = (Math.random() - 0.5) * 4;
+                let z = (Math.random() - 0.5) * 2;
+                d.textPos.set(x, y, z);
+                d.target.copy(d.textPos);
+                d.color.setHex(0xffffff);
+            }
+        }
+
+        // ฟังก์ชันคำนวณพิกัดแปลงร่าง Morphing ตามกรรม (Karma Morphing Shapes)
+        function generateKarmaShape(karmaType) {
+            currentKarma = karmaType;
+            for (let i = 0; i < cellCount; i++) {
+                let d = cellData[i];
+                if (karmaType === 'dharma') {
+                    // รูปทรงยอดฉัตร/แท่งแก้วแสงธรรม
+                    let h = (Math.random() - 0.5) * 18;
+                    let r = (9 - h * 0.4) * Math.random();
+                    let angle = Math.random() * Math.PI * 2;
+                    d.karmaPos.set(Math.cos(angle)*r, h, Math.sin(angle)*r);
+                    d.color.setHex(P.dharma);
+                } else if (karmaType === 'sufficiency') {
+                    // รูปทรงฐานรากมั่นคง กว้างขวาง
+                    d.karmaPos.set((Math.random()-0.5)*24, (Math.random()-0.5)*5 - 4, (Math.random()-0.5)*24);
+                    d.color.setHex(P.sufficiency);
+                } else if (karmaType === 'wisdom') {
+                    // รูปทรงพายุเกลียวสว่านปัญญาญาณ (Vortex)
+                    let angle = i * 0.08;
+                    let r = (i / cellCount) * 14 + 1;
+                    let h = (Math.random() - 0.5) * 16;
+                    d.karmaPos.set(Math.cos(angle)*r, h, Math.sin(angle)*r);
+                    d.color.setHex(P.wisdom);
+                }
+                d.target.copy(d.karmaPos);
+            }
+        }
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let time = clock.getElapsedTime();
+
+            // หมุนผลึกจุดกำเนิดซ้ายล่างเบาๆ
+            originCrystal.rotation.x = time * 0.5;
+            originCrystal.rotation.y = time * 0.7;
+
+            for (let i = 0; i < cellCount; i++) {
+                let d = cellData[i];
+
+                if (systemState === 0) {
+                    // SUNITYA / IDLE: ลอยเคว้งคว้าง
+                    d.current.x = d.idle.x + Math.sin(time * 0.4 + i) * 1.2;
+                    d.current.y = d.idle.y + Math.cos(time * 0.3 + i) * 1.2;
+                    d.current.z = d.idle.z + Math.sin(time * 0.35 + i) * 1.2;
+                    instancedVoxels.setColorAt(i, new THREE.Color(P.idle));
+                } else {
+                    // DYNAMIC MORPHING (รวมร่างเป็นตัวอักษร แล้ว Morph เป็นรูปทรงกรรม)
+                    if (systemState === 2) {
+                        // ใส่พฤติกรรมเคลื่อนไหวตามกรรมหลังจาก Morph เสร็จแล้ว
+                        let tx = d.karmaPos.x;
+                        let ty = d.karmaPos.y;
+                        let tz = d.karmaPos.z;
+
+                        if (currentKarma === 'dharma') {
+                            ty += Math.sin(time * 3 + i * 0.1) * 0.8;
+                        } else if (currentKarma === 'wisdom') {
+                            let angleOffset = time * 1.2 + (i * 0.01);
+                            let currentR = Math.sqrt(tx*tx + tz*tz);
+                            tx = Math.cos(angleOffset) * currentR;
+                            tz = Math.sin(angleOffset) * currentR;
+                        }
+                        d.target.set(tx, ty, tz);
+                    }
+
+                    d.current.lerp(d.target, d.speed);
+                    instancedVoxels.setColorAt(i, d.color);
+                }
+
+                dummy.position.copy(d.current);
+                dummy.rotation.set(time * (systemState > 0 ? 0.8 : 0.2), time * 0.4, 0);
+                dummy.updateMatrix();
+                instancedVoxels.setMatrixAt(i, dummy.matrix);
+            }
+            
+            instancedVoxels.instanceMatrix.needsUpdate = true;
+            instancedVoxels.instanceColor.needsUpdate = true;
+            
+            camera.position.x = Math.sin(time * 0.1) * 30;
+            camera.position.z = Math.cos(time * 0.1) * 30;
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ---- ระบบ Raycaster ตรวจจับการคลิกที่จุดกำเนิด 3D หรือฉาก ----
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('pointerdown', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(originCrystal);
+
+            if (intersects.length > 0) {
+                // คลิกที่ผลึกจุดกำเนิดซ้ายล่าง -> เริ่มต้นร่ายคาถา (เฟส 1: รวมตัวเป็นตัวอักษร 3D)
+                systemState = 1;
+                generateTextShape();
+                document.getElementById('hud-title').innerText = "ร่ายคาถา: รวมตัวเป็นอักขระ 3D";
+                document.getElementById('hud-sub').innerText = "กำลังแปลงนามธรรมสู่อักขระ Voxel...";
+
+                // สังเคราะห์เสียงสวด
+                if ('speechSynthesis' in window) {
+                    let ut = new SpeechSynthesisUtterance("นิปปัตติ");
+                    ut.lang = 'th-TH'; ut.pitch = 0.9;
+                    window.speechSynthesis.speak(ut);
+                }
+
+                // หลังจากรวมตัวเป็นตัวอักษร 1.8 วินาที -> ทำการ Morph สู่รูปทรงกรรมอัตโนมัติ (เฟส 2)
+                setTimeout(() => {
+                    systemState = 2;
+                    const karmas = ['dharma', 'sufficiency', 'wisdom'];
+                    const chosenKarma = karmas[Math.floor(Math.random() * karmas.length)];
+                    generateKarmaShape(chosenKarma);
+
+                    if (chosenKarma === 'dharma') {
+                        document.getElementById('hud-title').innerText = "สัมปติจฉามิ: คาถาธรรมะบรรเจิด";
+                        document.getElementById('hud-sub').innerText = "Voxel Morphing: รัศมีแสงธรรมสงบเยือกเย็น";
+                    } else if (chosenKarma === 'sufficiency') {
+                        document.getElementById('hud-title').innerText = "สัมปติจฉามิ: คาถาเศรษฐกิจพอเพียง";
+                        document.getElementById('hud-sub').innerText = "Voxel Morphing: ฐานรากมั่นคงแข็งแกร่ง";
+                    } else {
+                        document.getElementById('hud-title').innerText = "สัมปติจฉามิ: คาถาญาณปัญญา";
+                        document.getElementById('hud-sub').innerText = "Voxel Morphing: วนพายุพลังงานปัญญาญาณ";
+                    }
+                }, 2000);
+
+            } else {
+                // คลิกที่พื้นที่ว่างฉาก -> คลายคาถากลับสู่สุญญตา
+                systemState = 0;
+                for (let i = 0; i < cellCount; i++) {
+                    cellData[i].target.copy(cellData[i].idle);
+                    cellData[i].color.setHex(P.idle);
+                }
+                document.getElementById('hud-title').innerText = "Digital Mantra Laboratory (สุญญตา 3D)";
+                document.getElementById('hud-sub').innerText = "คลิกที่ผลึกซ้ายล่างเพื่อร่ายคาถาใหม่";
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
