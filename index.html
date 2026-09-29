@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Cellular & Atomic Dharma Engine | เขื่อนภูมิพล</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&family=Sarabun:wght@300;400;600&display=swap');
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #030712;
+            color: #f8fafc;
+            font-family: 'Sarabun', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 380px;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+        }
+        h1 {
+            font-family: 'Prompt', sans-serif;
+            font-size: 1.3rem;
+            color: #38bdf8;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 0.8rem;
+            color: #fbbf24;
+            font-family: monospace;
+            margin-bottom: 12px;
+        }
+        p {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        .badge-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .tag {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: monospace;
+        }
+        .controls-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.8);
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            font-size: 0.8rem;
+            color: #fbbf24;
+            font-family: 'Prompt', sans-serif;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(251, 191, 36, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ui-overlay">
+        <h1>เขื่อนภูมิพลควอนตัม</h1>
+        <div class="subtitle">Cellular & Atomic Graph Engine</div>
+        <p id="info-text"><strong>มหภาค (Macro):</strong> แสดงโครงสร้างภูมิประเทศ ภูเขา และตัวเขื่อนโค้งคอนกรีต พร้อมมวลน้ำและแรงดันจริง</p>
+        <div class="badge-group">
+            <span class="tag">SiO2 (ทราย/ปูน)</span>
+            <span class="tag">Fe (เหล็กเสริม)</span>
+            <span class="tag">Cellular Mesh</span>
+            <span class="tag">Periodic Table</span>
+        </div>
+    </div>
+
+    <div class="controls-hint">ใช้ Scroll เมาส์เพื่อซูมทะลุมิติ (Macro ➔ Rebar Skeleton ➔ Cellular ➔ Atomic)</div>
+
+    <div id="canvas-container"></div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // --- QUANTUM ENGINE INITIALIZATION ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x030712);
+        scene.fog = new THREE.FogExp2(0x030712, 0.015);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 15, 45);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // --- LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0x38bdf8, 1.5);
+        dirLight.position.set(20, 40, 20);
+        scene.add(dirLight);
+
+        const pointLight = new THREE.PointLight(0xfbbf24, 2, 50);
+        pointLight.position.set(0, 0, 0);
+        scene.add(pointLight);
+
+        // --- GROUP CONTAINERS FOR LAYERS ---
+        const macroGroup = new THREE.Group(); // เขื่อน + Landscape
+        const rebarGroup = new THREE.Group(); // โครงสร้างเหล็ก
+        const cellularGroup = new THREE.Group(); // เซลล์แห่งสติ
+        const atomicGroup = new THREE.Group(); // ตารางธาตุ / อะตอม
+
+        scene.add(macroGroup);
+        scene.add(rebarGroup);
+        scene.add(cellularGroup);
+        scene.add(atomicGroup);
+
+        // 1. MACRO LAYER: Landscape & Arch Dam
+        // ภูเขาซ้าย-ขวา
+        const mountainMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.9, flatShading: true });
+        const mountainGeoL = new THREE.ConeGeometry(25, 30, 6);
+        const mLeft = new THREE.Mesh(mountainGeoL, mountainMat);
+        mLeft.position.set(-25, -5, -10);
+        macroGroup.add(mLeft);
+
+        const mountainGeoR = new THREE.ConeGeometry(28, 35, 6);
+        const mRight = new THREE.Mesh(mountainGeoR, mountainMat);
+        mRight.position.set(25, -3, -10);
+        macroGroup.add(mRight);
+
+        // ตัวเขื่อนคอนกรีตโค้ง (Arch Dam)
+        const damGeo = new THREE.CylinderGeometry(15, 12, 18, 32, 1, true, 0, Math.PI);
+        const damMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.4, metalness: 0.3, side: THREE.DoubleSide });
+        const dam = new THREE.Mesh(damGeo, damMat);
+        dam.rotation.y = Math.PI / 2;
+        dam.position.set(0, 2, 0);
+        macroGroup.add(dam);
+
+        // 2. REBAR SKELETON LAYER (โครงสร้างเหล็กกราฟภายใน)
+        const rebarMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.8 });
+        const rebarGeo = new THREE.BufferGeometry();
+        const rebarPositions = [];
+        for (let i = 0; i < 200; i++) {
+            let theta = (i / 200) * Math.PI;
+            let x = Math.cos(theta) * 13;
+            let z = Math.sin(theta) * 13;
+            let y1 = -6, y2 = 10;
+            rebarPositions.push(x, y1, z, x, y2, z);
+            // เชื่อมแนวขวาง
+            if (i % 5 === 0) {
+                let nextTheta = ((i + 5) / 200) * Math.PI;
+                let nx = Math.cos(nextTheta) * 13;
+                let nz = Math.sin(nextTheta) * 13;
+                rebarPositions.push(x, 2, z, nx, 2, nz);
+            }
+        }
+        rebarGeo.setAttribute('position', new THREE.Float32BufferAttribute(rebarPositions, 3));
+        const rebarMesh = new THREE.LineSegments(rebarGeo, rebarMat);
+        rebarGroup.add(rebarMesh);
+        rebarGroup.visible = false;
+
+        // 3. CELLULAR LAYER (เซลล์แห่งสติ & ประสาทกราฟ)
+        const cellCount = 150;
+        const cellGeo = new THREE.SphereGeometry(0.4, 16, 16);
+        const cellMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+        const cellularInstanced = new THREE.InstancedMesh(cellGeo, cellMat, cellCount);
+        
+        const dummy = new THREE.Object3D();
+        const cellData = [];
+        for (let i = 0; i < cellCount; i++) {
+            let u = Math.random() * Math.PI;
+            let v = Math.random() * Math.PI * 2;
+            let r = 8 + Math.random() * 4;
+            let x = r * Math.sin(u) * Math.cos(v);
+            let y = r * Math.cos(u) + 2;
+            let z = r * Math.sin(u) * Math.sin(v);
+            cellData.push({x, y, z, vx: (Math.random()-0.5)*0.02, vy: (Math.random()-0.5)*0.02});
+            dummy.position.set(x, y, z);
+            dummy.updateMatrix();
+            cellularInstanced.setMatrixAt(i, dummy.matrix);
+        }
+        cellularGroup.add(cellularInstanced);
+        cellularGroup.visible = false;
+
+        // 4. ATOMIC & PERIODIC TABLE LAYER (ระดับตารางธาตุและอะตอม Fe, Si, Ca, O)
+        const atomGroupObj = new THREE.Group();
+        const atomMat = new THREE.MeshBasicMaterial({ color: 0x34d399 });
+        const orbitMat = new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.3 });
+        
+        // นิวเคลียสกลาง (Fe - Iron Atom)
+        const nucleus = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+        atomGroupObj.add(nucleus);
+
+        // วงโคจรอิเล็กตรอน (Quantum Shells)
+        for(let j=1; j<=3; j++) {
+            let orbitGeo = new THREE.RingGeometry(j * 3 - 0.05, j * 3 + 0.05, 32);
+            let orbit = new THREE.Mesh(orbitGeo, orbitMat);
+            orbit.rotation.x = Math.PI / 2 + j * 0.5;
+            atomGroupObj.add(orbit);
+        }
+        atomicGroup.add(atomGroupObj);
+        atomicGroup.visible = false;
+
+        // --- QUANTUM ZOOM & SCROLL INTERACTION ---
+        let zoomLevel = 0; // 0: Macro, 1: Rebar, 2: Cellular, 3: Atomic
+        let targetZoom = 0;
+
+        window.addEventListener('wheel', (event) => {
+            targetZoom += event.deltaY * 0.002;
+            targetZoom = Math.max(0, Math.min(3, targetZoom));
+        });
+
+        const infoText = document.getElementById('info-text');
+
+        // --- ANIMATION LOOP ---
+        let clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            let elapsedTime = clock.getElapsedTime();
+
+            // Smooth Zoom Interpolation
+            zoomLevel += (targetZoom - zoomLevel) * 0.08;
+
+            // Camera Z positioning based on zoom
+            camera.position.z = 45 - zoomLevel * 12;
+            camera.position.y = 15 - zoomLevel * 3;
+            camera.lookAt(0, 0, 0);
+
+            // Layer Visibility & Transition Control
+            if (zoomLevel < 0.8) {
+                macroGroup.visible = true;
+                rebarGroup.visible = false;
+                cellularGroup.visible = false;
+                atomicGroup.visible = false;
+                macroGroup.scale.setScalar(1);
+                infoText.innerHTML = "<strong>มหภาค (Macro):</strong> แสดงโครงสร้างภูมิประเทศ ภูเขา และตัวเขื่อนโค้งคอนกรีต พร้อมมวลน้ำและแรงดันจริง";
+            } else if (zoomLevel >= 0.8 && zoomLevel < 1.8) {
+                macroGroup.visible = false;
+                rebarGroup.visible = true;
+                cellularGroup.visible = false;
+                atomicGroup.visible = false;
+                rebarGroup.rotation.y = elapsedTime * 0.2;
+                infoText.innerHTML = "<strong>โครงสร้างเหล็กเสริม (Rebar Skeleton):</strong> เครือข่ายกราฟสามมิติภายในเนื้อปูน ทำหน้าที่รับแรงดึงและแรงเฉือน เปรียบดั่ง 'สติและศรัทธา'";
+            } else if (zoomLevel >= 1.8 && zoomLevel < 2.5) {
+                macroGroup.visible = false;
+                rebarGroup.visible = false;
+                cellularGroup.visible = true;
+                atomicGroup.visible = false;
+                // ขยับเซลล์เล็กน้อยจำลอง Quantum Fluctuation
+                for (let i = 0; i < cellCount; i++) {
+                    let d = cellData[i];
+                    d.x += d.vx; d.y += d.vy;
+                    dummy.position.set(d.x, d.y, d.z);
+                    dummy.scale.setScalar(1 + Math.sin(elapsedTime * 3 + i) * 0.2);
+                    dummy.updateMatrix();
+                    cellularInstanced.setMatrixAt(i, dummy.matrix);
+                }
+                cellularInstanced.instanceMatrix.needsUpdate = true;
+                infoText.innerHTML = "<strong>ระดับเซลล์ (Cellular Graph):</strong> โครงข่ายเซลล์แห่งสติและขันธ์ 5 ส่งกระแสพลังงานประสานกันอย่างมีชีวิตชีวา";
+            } else {
+                macroGroup.visible = false;
+                rebarGroup.visible = false;
+                cellularGroup.visible = false;
+                atomicGroup.visible = true;
+                atomGroupObj.rotation.y = elapsedTime * 0.5;
+                atomGroupObj.rotation.z = elapsedTime * 0.3;
+                infoText.innerHTML = "<strong>ระดับตารางธาตุ & อะตอม (Atomic Scale):</strong> ดิ่งลึกลงสู่อะตอมเหล็ก (Fe) และซิลิกอน (SiO2) สัจธรรมแห่งความว่างเปล่าและธาตุทั้งปวง";
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Responsive Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
