@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>เขื่อนภูมิพลควอนตัม - Parametric Arch Dam & Pure UX</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #020617;
+            color: #f8fafc;
+            font-family: 'Sarabun', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            touch-action: none;
+        }
+        #canvas-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+        .pure-hud {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 0.88rem;
+            color: #38bdf8;
+            font-family: 'Prompt', sans-serif;
+            pointer-events: none;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+            text-align: center;
+        }
+        .pure-hud span {
+            color: #fbbf24;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="pure-hud" id="hud-text">
+        ✨ แตะหน้าจอเพื่อ <span>วาร์ปทะลุมิติ</span> (Macro ➔ Rebar ➔ Cellular ➔ Atomic)
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // --- 1. QUANTUM & DHARMA REGISTRY ---
+        const QuantumRegistry = {
+            currentLayer: 0,
+            layersInfo: [
+                "มหภาค (Bhumipl Arch Dam): ปฐวีธาตุ + อาโปธาตุ (เขื่อนโค้งคอนกรีต & มวลน้ำ)",
+                "โครงสร้างเหล็กเสริม (Rebar Mesh): ปฐวีธาตุขันธ์ (เหล็ก - สติและศรัทธา)",
+                "ระดับเซลล์ (Cellular Mind Mesh): อาโปธาตุ + วาโยธาตุ (เครือข่ายสติและขันธ์ 5)",
+                "ระดับอะตอม (Atomic Core): เตโชธาตุ + ปรมัตถสัจจะ (ความว่างเปล่าและพลังงาน)"
+            ]
+        };
+
+        // --- 2. SETUP SCENE & CAMERA ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020617);
+        scene.fog = new THREE.FogExp2(0x020617, 0.01);
+
+        const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 12, 42);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.shadowMap.enabled = true;
+        container.appendChild(renderer.domElement);
+
+        // --- 3. LIGHTING ---
+        scene.add(new THREE.AmbientLight(0x1e293b, 1.2));
+        const dirLight = new THREE.DirectionalLight(0xfbbf24, 2.5);
+        dirLight.position.set(30, 40, 25);
+        scene.add(dirLight);
+
+        const blueLight = new THREE.PointLight(0x38bdf8, 2, 50);
+        blueLight.position.set(0, -5, 10);
+        scene.add(blueLight);
+
+        // --- 4. LAYER GROUPS ---
+        const macroGroup = new THREE.Group();     
+        const rebarGroup = new THREE.Group();     
+        const cellularGroup = new THREE.Group();  
+        const atomicGroup = new THREE.Group();    
+
+        scene.add(macroGroup);
+        scene.add(rebarGroup);
+        scene.add(cellularGroup);
+        scene.add(atomicGroup);
+
+        // --- MACRO: PARAMETRIC ARCH DAM & REALISTIC LANDSCAPE ---
+        // สร้างหุบเขาและผืนดินรอบเขื่อน
+        const terrainGeo = new THREE.PlaneGeometry(100, 60, 32, 32);
+        terrainGeo.rotateX(-Math.PI / 2);
+        const pos = terrainGeo.attributes.position;
+        for (let i = 0; i < pos.count; i++) {
+            let x = pos.getX(i);
+            let z = pos.getZ(i);
+            // ยกขอบซ้ายขวาให้เป็นภูเขาโอบล้อมตรงกลางเป็นร่องน้ำ
+            let y = Math.sin(x * 0.1) * 4 + Math.cos(z * 0.1) * 3;
+            if (Math.abs(x) < 12) {
+                y -= 6; // ร่องน้ำตรงกลาง
+            } else {
+                y += 8; // ความสูงภูเขา
+            }
+            pos.setY(i, y);
+        }
+        terrainGeo.computeVertexNormals();
+        const terrainMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.9, flatShading: true });
+        const terrain = new THREE.Mesh(terrainGeo, terrainMat);
+        terrain.position.set(0, -8, -10);
+        macroGroup.add(terrain);
+
+        // สร้างรูปทรงเขื่อนโค้ง (Parametric Arch Dam)
+        const damShape = new THREE.Shape();
+        const curvePoints = [];
+        for (let i = -15; i <= 15; i++) {
+            let x = i;
+            let z = Math.pow(i / 12, 2) * 2; // ความโค้งพาราโบิกรับแรงดันน้ำ
+            curvePoints.push(new THREE.Vector2(x, z));
+        }
+
+        // ใช้ Extrude Geometry สร้างตัวเขื่อนโค้งที่มีความหนาและสัดส่วนวิศวกรรมจริง
+        const archExtrudeSettings = {
+            steps: 1,
+            depth: 14,
+            bevelEnabled: true,
+            bevelThickness: 1,
+            bevelSize: 1,
+            bevelSegments: 3
+        };
+
+        // วาดหน้าตัดเขื่อนโค้ง
+        const damPath = new THREE.Path();
+        damPath.moveTo(-16, 0);
+        damPath.quadraticCurveTo(0, 6, 16, 0);
+        damPath.lineTo(12, -14);
+        damPath.quadraticCurveTo(0, -10, -12, -14);
+        damPath.closePath();
+
+        const damGeo = new THREE.ExtrudeGeometry(damPath, { depth: 16, bevelEnabled: true, bevelThickness: 2 });
+        const damMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.35, metalness: 0.4 });
+        const archDam = new THREE.Mesh(damGeo, damMat);
+        archDam.rotation.x = Math.PI / 2;
+        archDam.position.set(0, -2, -2);
+        macroGroup.add(archDam);
+
+        // ผืนน้ำหน้าเขื่อน
+        const waterGeo = new THREE.PlaneGeometry(50, 40);
+        const waterMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, roughness: 0.1, metalness: 0.8, transparent: true, opacity: 0.85 });
+        const waterBody = new THREE.Mesh(waterGeo, waterMat);
+        waterBody.rotation.x = -Math.PI / 2;
+        waterBody.position.set(0, 1, 10);
+        macroGroup.add(waterBody);
+
+        // --- REBAR SKELETON (โครงสร้างเหล็กเสริมโค้งตามรูปเขื่อน) ---
+        const rebarGeo = new THREE.BufferGeometry();
+        const rebarPositions = [];
+        for (let i = 0; i <= 20; i++) {
+            let t = (i / 20) * 30 - 15;
+            let zCurve = Math.pow(t / 12, 2) * 2;
+            rebarPositions.push(t, -12, zCurve, t, 4, zCurve);
+        }
+        // เชื่อมโครงข่ายแนวขวาง
+        for (let yLevel = -10; yLevel <= 2; yLevel += 3) {
+            for (let i = -14; i < 14; i += 2) {
+                let z1 = Math.pow(i / 12, 2) * 2;
+                let z2 = Math.pow((i+2) / 12, 2) * 2;
+                rebarPositions.push(i, yLevel, z1, i+2, yLevel, z2);
+            }
+        }
+        rebarGeo.setAttribute('position', new THREE.Float32BufferAttribute(rebarPositions, 3));
+        const rebarMesh = new THREE.LineSegments(rebarGeo, new THREE.LineBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.9 }));
+        rebarGroup.add(rebarMesh);
+        rebarGroup.visible = false;
+
+        // --- CELLULAR MESH ---
+        const cellCount = 150;
+        const cellularInstanced = new THREE.InstancedMesh(
+            new THREE.SphereGeometry(0.35, 10, 10),
+            new THREE.MeshBasicMaterial({ color: 0x38bdf8 }),
+            cellCount
+        );
+        const dummy = new THREE.Object3D();
+        const cellData = [];
+        for (let i = 0; i < cellCount; i++) {
+            let x = (Math.random() - 0.5) * 24;
+            let y = (Math.random() - 0.5) * 12;
+            let z = (Math.random() - 0.5) * 10;
+            cellData.push({ x, y, z, vx: (Math.random()-0.5)*0.02, vy: (Math.random()-0.5)*0.02 });
+            dummy.position.set(x, y, z);
+            dummy.updateMatrix();
+            cellularInstanced.setMatrixAt(i, dummy.matrix);
+        }
+        cellularGroup.add(cellularInstanced);
+        cellularGroup.visible = false;
+
+        // --- ATOMIC PERIODIC SCALE ---
+        const atomCore = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 16), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
+        atomicGroup.add(atomCore);
+        for(let j = 1; j <= 3; j++) {
+            let orbit = new THREE.Mesh(
+                new THREE.RingGeometry(j * 3.2 - 0.04, j * 3.2 + 0.04, 32),
+                new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.6 })
+            );
+            orbit.rotation.x = Math.PI / 2 + j * 0.5;
+            atomicGroup.add(orbit);
+        }
+        atomicGroup.visible = false;
+
+        // --- PURE UX: TOUCH TO TOGGLE WARP ---
+        window.addEventListener('click', handleToggleWarp);
+        window.addEventListener('touchstart', handleToggleWarp);
+
+        function handleToggleWarp(e) {
+            e.preventDefault();
+            QuantumRegistry.currentLayer = (QuantumRegistry.currentLayer + 1) % 4;
+            updateLayerState();
+        }
+
+        function updateLayerState() {
+            let layer = QuantumRegistry.currentLayer;
+            macroGroup.visible = (layer === 0);
+            rebarGroup.visible = (layer === 1);
+            cellularGroup.visible = (layer === 2);
+            atomicGroup.visible = (layer === 3);
+
+            document.getElementById('hud-text').innerHTML = `
+                📌 <span>[ชั้นที่ ${layer + 1}/4]</span> ${QuantumRegistry.layersInfo[layer]}
+            `;
+        }
+
+        // --- ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            let elapsedTime = clock.getElapsedTime();
+
+            let targetZ = 42 - QuantumRegistry.currentLayer * 12;
+            camera.position.z += (targetZ - camera.position.z) * 0.08;
+            camera.lookAt(0, 0, 0);
+
+            if (QuantumRegistry.currentLayer === 0) {
+                // ขยับผิวน้ำเล็กน้อยให้มีชีวิตชีวา
+                waterBody.position.y = 1 + Math.sin(elapsedTime * 2) * 0.15;
+            } else if (QuantumRegistry.currentLayer === 1) {
+                rebarGroup.rotation.y = elapsedTime * 0.2;
+            } else if (QuantumRegistry.currentLayer === 2) {
+                for (let i = 0; i < cellCount; i++) {
+                    let d = cellData[i];
+                    d.x += d.vx; d.y += d.vy;
+                    dummy.position.set(d.x, d.y, d.z);
+                    dummy.scale.setScalar(1 + Math.sin(elapsedTime * 4 + i) * 0.25);
+                    dummy.updateMatrix();
+                    cellularInstanced.setMatrixAt(i, dummy.matrix);
+                }
+                cellularInstanced.instanceMatrix.needsUpdate = true;
+            } else if (QuantumRegistry.currentLayer === 3) {
+                atomicGroup.rotation.y = elapsedTime * 0.5;
+                atomicGroup.rotation.z = elapsedTime * 0.3;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
